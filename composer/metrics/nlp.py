@@ -542,6 +542,14 @@ class InContextLearningCodeEvalAccuracy(InContextLearningMetric):
                 'CODE_EVAL_DEVICE to LOCAL or LAMBDA.')
         return client
 
+    def estimator(n: int, c: int, k: int) -> float:
+        """
+        Calculates 1 - comb(n - c, k) / comb(n, k).
+        """
+        if n - c < k:
+            return 1.0
+        return 1.0 - np.prod(1.0 - k / np.arange(n - c + 1, n + 1))
+
     def update(self, batch: Dict[str, Any], outputs: List[str], labels: List[str]):
         """Updates the pass@k accuracy of code generation.
 
@@ -569,6 +577,7 @@ class InContextLearningCodeEvalAccuracy(InContextLearningMetric):
         del labels  # never used
         client = self.get_client()
 
+        pass_at_k = batch['generation_kwargs']['pass_at_k']
         num_beams = batch['generation_kwargs']['num_beams']
         processed_outputs = [outputs[i * num_beams:(i + 1) * num_beams] for i in range(len(batch['prompts']))]
         payloads = []
@@ -595,9 +604,24 @@ class InContextLearningCodeEvalAccuracy(InContextLearningMetric):
             payloads.append(prompt_payload)
 
         results = client.invoke(payloads)
-        passes = sum(
-            [any(all(generation_payload) for generation_payload in prompt_payload) for prompt_payload in results])
-        self.correct += torch.tensor(float(passes))
+        for i, prompt in enumerate(payloads) :
+            print(f'prompt {i}')
+            num_correct = 0
+            for j, beam in prompt :
+                correct = all(results[i][j])
+                if correct :
+                    num_correct += 1
+                #for k, test in beam :
+                #    print(test)
+                #    print(f'equal: {results[i][j][k]}')
+
+            pass_at_k_rate = self.estimate(num_beams, num_correct, pass_at_k)
+            self.correct += pass_at_k_rate
+    
+        #passes = sum(
+        #    [any(all(generation_payload) for generation_payload in prompt_payload) for prompt_payload in results])
+        #self.correct += torch.tensor(float(passes))
+        
         client.close()  # pyright: ignore [reportOptionalMemberAccess]
 
     def compute(self):
