@@ -605,16 +605,12 @@ class InContextLearningCodeEvalAccuracy(InContextLearningMetric):
 
         results = client.invoke(payloads)
         for i, prompt in enumerate(payloads) :
-            print(f'prompt {i}')
             num_correct = 0
-            for j, beam in prompt :
+            for j, beam in enumerate(prompt) :
                 correct = all(results[i][j])
                 if correct :
                     num_correct += 1
-                #for k, test in beam :
-                #    print(test)
-                #    print(f'equal: {results[i][j][k]}')
-
+              
             pass_at_k_rate = self.estimate(num_beams, num_correct, pass_at_k)
             self.correct += pass_at_k_rate
     
