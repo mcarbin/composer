@@ -605,10 +605,10 @@ class InContextLearningCodeEvalAccuracy(InContextLearningMetric):
             payloads.append(prompt_payload)
 
         results = client.invoke(payloads)
-        for i, prompt in enumerate(payloads) :
+        for prompt in results :
             num_correct = 0
-            for j, beam in enumerate(prompt) :
-                correct = all(results[i][j])
+            for j, generation in prompt :
+                correct = all(generation)
                 if correct :
                     num_correct += 1
               
