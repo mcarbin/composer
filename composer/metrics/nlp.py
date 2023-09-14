@@ -611,7 +611,7 @@ class InContextLearningCodeEvalAccuracy(InContextLearningMetric):
                 if correct :
                     num_correct += 1
               
-            pass_at_k_rate = self.estimate(num_beams, num_correct, pass_at_k)
+            pass_at_k_rate = self.estimator(num_beams, num_correct, pass_at_k)
             self.correct += pass_at_k_rate
     
         #passes = sum(
