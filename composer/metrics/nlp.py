@@ -542,7 +542,7 @@ class InContextLearningCodeEvalAccuracy(InContextLearningMetric):
                 'CODE_EVAL_DEVICE to LOCAL or LAMBDA.')
         return client
 
-    def estimator(n: int, c: int, k: int) -> float:
+    def estimator(self, n: int, c: int, k: int) -> float:
         """
         Calculates 1 - comb(n - c, k) / comb(n, k).
         """
