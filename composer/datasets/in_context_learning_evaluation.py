@@ -1042,10 +1042,10 @@ class InContextLearningCodeEvalDataset(Dataset):
             'test_inputs': test_inputs,  # list of test inputs
             'test_outputs': test_outputs,  # list of test outputs
             'languages': languages,  # list of languages
+            'pass_at_k' : self.pass_at_k,
             'generation_length': self.max_seq_len - self.max_prompt_length,
             'generation_kwargs': {
                 'pad_token_id': self.pad_tok_id,
-                'pass_at_k' : self.pass_at_k,
                 'num_beams': self.generations_per_sample,  # change strategy to beam search
                 'num_return_sequences': self.generations_per_sample,  # how many gens per prompt
                 'do_sample': True,

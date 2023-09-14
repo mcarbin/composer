@@ -577,7 +577,7 @@ class InContextLearningCodeEvalAccuracy(InContextLearningMetric):
         del labels  # never used
         client = self.get_client()
 
-        pass_at_k = batch['generation_kwargs']['pass_at_k']
+        pass_at_k = batch['pass_at_k']
         num_beams = batch['generation_kwargs']['num_beams']
         processed_outputs = [outputs[i * num_beams:(i + 1) * num_beams] for i in range(len(batch['prompts']))]
         payloads = []
