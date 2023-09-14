@@ -8,6 +8,7 @@ import os
 import re
 import string
 import warnings
+import numpy as np
 from typing import Any, Dict, List, Mapping, Union
 
 import torch
