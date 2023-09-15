@@ -988,7 +988,8 @@ class InContextLearningCodeEvalDataset(Dataset):
             encoded_example['test_outputs'] = self.samples[sample_idx]['test_outputs']
             encoded_example['language'] = self.samples[sample_idx]['language']
 
-            examples.append(encoded_example)
+
+            examples.extend([encoded_example] * self.generations_per_sample)
             max_prompt_length = max(
                 max_prompt_length,
                 len(encoded_example['preamble']['input_ids'] + encoded_example['prompt']['input_ids']))
@@ -1004,6 +1005,8 @@ class InContextLearningCodeEvalDataset(Dataset):
 
     def collate_fn(self, data):
         inputs, prompts, tests, canonical_solutions, entry_points, test_inputs, test_outputs, languages = [], [], [], [], [], [], [], []
+        
+        print(f"batch size @ collate {len(data)}")
         for sample in data:
             preamble, prompt, text_prompt, canonical_solution, test, entry_point, test_input, test_output, language = (
                 sample['preamble'],
@@ -1046,8 +1049,8 @@ class InContextLearningCodeEvalDataset(Dataset):
             'generation_length': self.max_seq_len - self.max_prompt_length,
             'generation_kwargs': {
                 'pad_token_id': self.pad_tok_id,
-                'num_beams': self.generations_per_sample,  # change strategy to beam search
-                'num_return_sequences': self.generations_per_sample,  # how many gens per prompt
+                'num_beams': 1,  # change strategy to beam search
+                'num_return_sequences': 1,  # how many gens per prompt
                 'do_sample': True,
                 'top_p': self.top_p,
                 'top_k': self.top_k,
@@ -1171,7 +1174,7 @@ def build_icl_dataloader(
                                                    fewshot_random_seed=fewshot_random_seed,
                                                    pass_at_k=pass_at_k,
                                                    generations_per_sample=generations_per_sample)
-        effective_batchsize = batch_size
+        effective_batchsize = generations_per_sample
     else:
         raise Exception(f'Unrecognized ICL task type: {icl_task_type}')
 
