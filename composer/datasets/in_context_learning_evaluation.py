@@ -1095,14 +1095,45 @@ class InContextLearningCodeEvalDataset(Dataset):
         return [{k: v[idx] for k, v in chunked.items()} for idx in range(num_chunks)]
 
 
-from torch.utils.data import DistributedSampler
+from torch.utils.data import Sampler
 import math
 
-class GroupedSampler(DistributedSampler): 
+class GroupedSampler(Sampler[int]): 
     def __init__(self, dataset, group_size) :
-        super().__init__(dataset, shuffle = False, drop_last = False)
-        self.group_size = group_size
+      
+        if not dist.is_available():
+            raise RuntimeError("Requires distributed package to be available")
         
+        self.num_replicas = dist.get_world_size()
+        if not dist.is_available():
+            raise RuntimeError("Requires distributed package to be available")
+        rank = dist.get_rank()
+        self.rank = rank
+        
+        if rank >= num_replicas or rank < 0:
+            raise ValueError(
+                "Invalid rank {}, rank should be in the interval"
+                " [0, {}]".format(rank, num_replicas - 1))
+        
+        self.dataset = dataset
+        self.epoch = 0
+
+        self.group_size = group_size
+        assert (len(dataset) % self.group_size) == 0
+   
+        # If the dataset length is evenly divisible by # of replicas, then there
+        # is no need to drop any data, since the dataset will be split equally.
+        
+        
+        block_size = self.group_size * self.num_replicas
+        self.excess = len(self.dataset) % block_size
+        self.padding_size = block_size - self.excess if self.excess != 0 else 0
+        assert ((len(self.dataset) + self.padding_size) / self.num_replicas) == 0
+
+        self.total_size = (len(self.dataset) + self.padding_size)
+        self.num_samples = self.total_size / self.num_replicas
+     
+     
     def __iter__(self) :
 
         # prefix from pytorch, consistent with shuffle = False and drop_last = False
@@ -1110,10 +1141,9 @@ class GroupedSampler(DistributedSampler):
         # add extra samples to make it evenly divisible
 
         padding_size = self.total_size - len(indices)
-        if padding_size <= len(indices):
-            indices += indices[:padding_size]
-        else:
-            indices += (indices * math.ceil(padding_size / len(indices)))[:padding_size]
+        assert padding_size <= len(indices)        
+        indices += indices[:padding_size]
+    
         assert len(indices) == self.total_size
 
         # subsample
