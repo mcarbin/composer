@@ -614,13 +614,16 @@ class InContextLearningCodeEvalAccuracy(InContextLearningMetric):
         #for prompt in results :
         num_correct = 0
         for generation in results :
-            correct = all(generation)
-            if correct :
+            if all(generation) :
                 num_correct += 1
+
+        print(f"results: {results}\n num_correct: {num_correct}")
             
         pass_at_k_rate = self.estimator(generations_per_sample, num_correct, pass_at_k)
         self.correct += pass_at_k_rate
     
+        print(f"results: {results}\n generations_per_sample: {generations_per_sample} num_correct: {num_correct} pass_at_k: {pass_at_k} pass_at_k_rate: {pass_at_k_rate} self.correct: {self.correct } self.total: { self.total:}:")
+
         client.close()  # pyright: ignore [reportOptionalMemberAccess]
 
     def compute(self):
