@@ -1099,7 +1099,7 @@ from torch.utils.data import DistributedSampler
 
 class GroupedSampler(DistributedSampler): 
     def __init__(self, dataset, group_size) :
-        super().__init(dataset, shuffle = False, drop_last = False)
+        super().__init__(dataset, shuffle = False, drop_last = False)
         self.group_size = group_size
         
     def __iter__(self) :
