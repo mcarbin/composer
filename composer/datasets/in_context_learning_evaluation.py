@@ -995,6 +995,7 @@ class InContextLearningCodeEvalDataset(Dataset):
                 len(encoded_example['preamble']['input_ids'] + encoded_example['prompt']['input_ids']))
 
         self.max_prompt_length = max_prompt_length
+        print(f'number of samples: {len(self.samples)} number of samples after encoding: {len(examples)}')
         return examples
 
     def __getitem__(self, index):
