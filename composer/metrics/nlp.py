@@ -588,8 +588,7 @@ class InContextLearningCodeEvalAccuracy(InContextLearningMetric):
         for sample_outputs, sample_prompt, test_inputs, test_outputs, entry_point, language in zip(
                 processed_outputs, batch['prompts'], batch['test_inputs'], batch['test_outputs'], batch['entry_points'],
                 batch['languages']):
-            self.total += torch.tensor(1.0)
-
+            
             prompt_payload = []
             for code_gen in sample_outputs:
                 code_gen = re.split(r'\n[A-Za-z0-9#`]', code_gen)[0]  # remove everything after function ends
@@ -613,7 +612,7 @@ class InContextLearningCodeEvalAccuracy(InContextLearningMetric):
         
         #for prompt in results :
         num_correct = 0
-        for generation in results :
+        for generation in results[0] :
             if all(generation) :
                 num_correct += 1
 
@@ -621,7 +620,8 @@ class InContextLearningCodeEvalAccuracy(InContextLearningMetric):
             
         pass_at_k_rate = self.estimator(generations_per_sample, num_correct, pass_at_k)
         self.correct += pass_at_k_rate
-    
+        self.total += torch.tensor(1.0)
+
         print(f"results: {results}\n generations_per_sample: {generations_per_sample} num_correct: {num_correct} pass_at_k: {pass_at_k} pass_at_k_rate: {pass_at_k_rate} self.correct: {self.correct } self.total: { self.total:}:")
 
         client.close()  # pyright: ignore [reportOptionalMemberAccess]
