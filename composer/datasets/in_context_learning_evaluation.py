@@ -1117,7 +1117,6 @@ class GroupedSampler(DistributedSampler):
 
         # subsample
         new_indices = []
-        self.rank * self.group_size:self.total_size
         start = self.rank * self.group_size
         while start < self.total_size :
             new_indices.extend[indices[start:start + self.group_size]]
