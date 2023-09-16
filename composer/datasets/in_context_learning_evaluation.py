@@ -1095,6 +1095,37 @@ class InContextLearningCodeEvalDataset(Dataset):
         return [{k: v[idx] for k, v in chunked.items()} for idx in range(num_chunks)]
 
 
+from torch.utils.data import DistributedSampler
+
+class GroupedSampler(DistributedSampler): 
+    def __init__(self, dataset, group_size) :
+        super().__init(dataset, shuffle = False, drop_last = False)
+        self.group_size = group_size
+        
+    def __iter__(self) :
+
+        # prefix from pytorch, consistent with shuffle = False and drop_last = False
+        indices = list(range(len(self.dataset)))  # type: ignore[arg-type]
+        # add extra samples to make it evenly divisible
+
+        padding_size = self.total_size - len(indices)
+        if padding_size <= len(indices):
+            indices += indices[:padding_size]
+        else:
+            indices += (indices * math.ceil(padding_size / len(indices)))[:padding_size]
+        assert len(indices) == self.total_size
+
+        # subsample
+        new_indices = []
+        self.rank * self.group_size:self.total_size
+        start = self.rank * self.group_size
+        while start < self.total_size :
+            new_indices.extend[indices[start:start + self.group_size]]
+            start += (self.num_replicas * self.group_size)
+
+        assert len(new_indices) == self.num_samples
+        return iter(new_indices)
+    
 def build_icl_dataloader(
     icl_task_type: str,
     dataset_uri: str,
@@ -1180,7 +1211,10 @@ def build_icl_dataloader(
     else:
         raise Exception(f'Unrecognized ICL task type: {icl_task_type}')
 
-    sampler = dist.get_sampler(dataset, drop_last=False, shuffle=False)
+    if icl_task_type == 'code_evaluation':
+        sampler = GroupedSampler(dataset, generations_per_sample)
+    else:
+        sampler = dist.get_sampler(dataset, drop_last=False, shuffle=False)
 
     split_batch = None
     if isinstance(
