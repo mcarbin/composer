@@ -1046,6 +1046,7 @@ class InContextLearningCodeEvalDataset(Dataset):
             'test_outputs': test_outputs,  # list of test outputs
             'languages': languages,  # list of languages
             'pass_at_k' : self.pass_at_k,
+            'generations_per_sample' : self.generations_per_sample,
             'generation_length': self.max_seq_len - self.max_prompt_length,
             'generation_kwargs': {
                 'pad_token_id': self.pad_tok_id,
@@ -1068,7 +1069,7 @@ class InContextLearningCodeEvalDataset(Dataset):
         # Don't split kwargs that don't change
         # Normally split torch tensors
         # List split lists of strings
-        no_split = ['mode', 'generation_length', 'pass_at_k', 'generation_kwargs']
+        no_split = ['mode', 'generation_length', 'pass_at_k', 'generations_per_sample', 'generation_kwargs']
         normal_split = ['input_ids', 'attention_mask']
         list_split = [
             'labels', 'tests', 'canonical_solutions', 'entry_points', 'test_inputs', 'test_outputs', 'prompts',

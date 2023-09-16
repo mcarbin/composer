@@ -580,6 +580,8 @@ class InContextLearningCodeEvalAccuracy(InContextLearningMetric):
 
 
         pass_at_k = batch['pass_at_k']
+        generations_per_sample = batch['generations_per_sample']
+
         num_beams = 1
         processed_outputs = [outputs[i * num_beams:(i + 1) * num_beams] for i in range(len(batch['prompts']))]
         payloads = []
@@ -616,7 +618,7 @@ class InContextLearningCodeEvalAccuracy(InContextLearningMetric):
             if correct :
                 num_correct += 1
             
-        pass_at_k_rate = self.estimator(num_beams, num_correct, pass_at_k)
+        pass_at_k_rate = self.estimator(generations_per_sample, num_correct, pass_at_k)
         self.correct += pass_at_k_rate
     
         client.close()  # pyright: ignore [reportOptionalMemberAccess]
