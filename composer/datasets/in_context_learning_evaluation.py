@@ -1096,6 +1096,7 @@ class InContextLearningCodeEvalDataset(Dataset):
 
 
 from torch.utils.data import DistributedSampler
+import math
 
 class GroupedSampler(DistributedSampler): 
     def __init__(self, dataset, group_size) :
@@ -1119,7 +1120,7 @@ class GroupedSampler(DistributedSampler):
         new_indices = []
         start = self.rank * self.group_size
         while start < self.total_size :
-            new_indices.extend[indices[start:start + self.group_size]]
+            new_indices.extend(indices[start:start + self.group_size])
             start += (self.num_replicas * self.group_size)
 
         assert len(new_indices) == self.num_samples
