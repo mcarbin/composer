@@ -1095,10 +1095,10 @@ class InContextLearningCodeEvalDataset(Dataset):
         return [{k: v[idx] for k, v in chunked.items()} for idx in range(num_chunks)]
 
 
-from torch.utils.data import Sampler
+from torch.utils.data import DistributedSampler
 import math
 
-class GroupedSampler(Sampler[int]): 
+class GroupedSampler(DistributedSampler): 
     def __init__(self, dataset, group_size) :
       
         if not dist.is_available():
