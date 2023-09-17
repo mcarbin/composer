@@ -1115,21 +1115,21 @@ class GroupedSampler(DistributedSampler):
         self.epoch = 0
 
         self.group_size = group_size
+        # TODO replace with valueerror
         assert (len(dataset) % self.group_size) == 0
    
         # If the dataset length is evenly divisible by # of replicas, then there
-        # is no need to drop any data, since the dataset will be split equally.
-        
+        # is no need to drop any data, since the dataset will be split equally.        
         
         block_size = self.group_size * self.num_replicas
         self.excess = len(self.dataset) % block_size
         self.padding_size = (block_size - self.excess) if self.excess != 0 else 0
-        print(f'datset_length: {len(self.dataset)} block_size: {block_size} excess: {self.excess} padding_size: {self.padding_size}')
-        assert ((len(self.dataset) + self.padding_size) % self.num_replicas) == 0
-
         self.total_size = (len(self.dataset) + self.padding_size)
         self.num_samples = self.total_size / self.num_replicas
      
+        print(f'datset_length: {len(self.dataset)} block_size: {block_size} excess: {self.excess} padding_size: {self.padding_size} total_size: {self.total_size} num_samples: {self.num_samples}')  
+        assert (self.total_size % self.num_replicas) == 0
+
      
     def __iter__(self) :
 
