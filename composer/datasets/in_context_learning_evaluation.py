@@ -1110,10 +1110,10 @@ class GroupedSampler(Sampler[int]):
         rank = torch.distributed.get_rank()
         self.rank = rank
         
-        if rank >= num_replicas or rank < 0:
+        if rank >= self.num_replicas or rank < 0:
             raise ValueError(
                 "Invalid rank {}, rank should be in the interval"
-                " [0, {}]".format(rank, num_replicas - 1))
+                " [0, {}]".format(rank, self.num_replicas - 1))
         
         self.dataset = dataset
         self.epoch = 0
