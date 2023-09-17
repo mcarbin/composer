@@ -1153,6 +1153,20 @@ class GroupedSampler(DistributedSampler):
         assert len(new_indices) == self.num_samples
         return iter(new_indices)
     
+    def __len__(self) -> int:
+        return self.num_samples
+
+    def set_epoch(self, epoch: int) -> None:
+        r"""
+        Sets the epoch for this sampler. When :attr:`shuffle=True`, this ensures all replicas
+        use a different random ordering for each epoch. Otherwise, the next iteration of this
+        sampler will yield the same ordering.
+
+        Args:
+            epoch (int): Epoch number.
+        """
+        self.epoch = epoch
+    
 def build_icl_dataloader(
     icl_task_type: str,
     dataset_uri: str,
