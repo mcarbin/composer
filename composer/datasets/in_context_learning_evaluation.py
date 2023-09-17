@@ -1104,10 +1104,10 @@ class GroupedSampler(Sampler[int]):
         if not dist.is_available():
             raise RuntimeError("Requires distributed package to be available")
         
-        self.num_replicas = dist.get_world_size()
+        self.num_replicas = torch.distributed.get_world_size()
         if not dist.is_available():
             raise RuntimeError("Requires distributed package to be available")
-        rank = dist.get_rank()
+        rank = torch.distributed.get_rank()
         self.rank = rank
         
         if rank >= num_replicas or rank < 0:
