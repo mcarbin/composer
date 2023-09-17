@@ -1103,17 +1103,13 @@ class GroupedSampler(Sampler[int]):
       
         if not dist.is_available():
             raise RuntimeError("Requires distributed package to be available")
-        
         self.num_replicas = torch.distributed.get_world_size()
-        if not dist.is_available():
-            raise RuntimeError("Requires distributed package to be available")
-        rank = torch.distributed.get_rank()
-        self.rank = rank
+        self.rank  = torch.distributed.get_rank()
         
-        if rank >= self.num_replicas or rank < 0:
+        if self.rank >= self.num_replicas or self.rank < 0:
             raise ValueError(
                 "Invalid rank {}, rank should be in the interval"
-                " [0, {}]".format(rank, self.num_replicas - 1))
+                " [0, {}]".format(self.rank, self.num_replicas - 1))
         
         self.dataset = dataset
         self.epoch = 0
@@ -1128,6 +1124,7 @@ class GroupedSampler(Sampler[int]):
         block_size = self.group_size * self.num_replicas
         self.excess = len(self.dataset) % block_size
         self.padding_size = block_size - self.excess if self.excess != 0 else 0
+        print(f'datset_length: {len(self.dataset)} block_size: {block_size} excess: {self.excess} padding_size: {self.padding_size}')
         assert ((len(self.dataset) + self.padding_size) / self.num_replicas) == 0
 
         self.total_size = (len(self.dataset) + self.padding_size)
