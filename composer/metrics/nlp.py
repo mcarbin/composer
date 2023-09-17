@@ -612,8 +612,8 @@ class InContextLearningCodeEvalAccuracy(InContextLearningMetric):
         
         #for prompt in results :
         num_correct = 0
-        for generation in results[0] :
-            if all(generation) :
+        for generation in results :
+            if all(generation[0]) :
                 num_correct += 1
 
         print(f"results: {results}\n num_correct: {num_correct}")

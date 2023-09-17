@@ -1121,13 +1121,13 @@ class GroupedSampler(DistributedSampler):
         # If the dataset length is evenly divisible by # of replicas, then there
         # is no need to drop any data, since the dataset will be split equally.        
         
-        block_size = self.group_size * self.num_replicas
-        self.excess = len(self.dataset) % block_size
-        self.padding_size = (block_size - self.excess) if self.excess != 0 else 0
+        self.block_size = self.group_size * self.num_replicas
+        self.excess = len(self.dataset) % self.block_size
+        self.padding_size = (self.block_size - self.excess) if self.excess != 0 else 0
         self.total_size = (len(self.dataset) + self.padding_size)
         self.num_samples = self.total_size // self.num_replicas
      
-        print(f'datset_length: {len(self.dataset)} block_size: {block_size} excess: {self.excess} padding_size: {self.padding_size} total_size: {self.total_size} num_samples: {self.num_samples}')  
+        print(f'datset_length: {len(self.dataset)} block_size: {self.block_size} excess: {self.excess} padding_size: {self.padding_size} total_size: {self.total_size} num_samples: {self.num_samples}')  
         assert (self.total_size % self.num_replicas) == 0
 
      
@@ -1148,7 +1148,7 @@ class GroupedSampler(DistributedSampler):
         start = self.rank * self.group_size
         while start < self.total_size :
             new_indices.extend(indices[start:start + self.group_size])
-            start += (self.num_replicas * self.group_size)
+            start += self.block_size
 
         assert len(new_indices) == self.num_samples
         return iter(new_indices)
