@@ -1125,7 +1125,7 @@ class GroupedSampler(Sampler[int]):
         self.excess = len(self.dataset) % block_size
         self.padding_size = (block_size - self.excess) if self.excess != 0 else 0
         print(f'datset_length: {len(self.dataset)} block_size: {block_size} excess: {self.excess} padding_size: {self.padding_size}')
-        assert ((len(self.dataset) + self.padding_size) / self.num_replicas) == 0
+        assert ((len(self.dataset) + self.padding_size) % self.num_replicas) == 0
 
         self.total_size = (len(self.dataset) + self.padding_size)
         self.num_samples = self.total_size / self.num_replicas
