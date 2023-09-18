@@ -1252,10 +1252,10 @@ def build_icl_dataloader(
     else:
         raise Exception(f'Unrecognized ICL task type: {icl_task_type}')
 
-    if icl_task_type == 'code_evaluation':
-        sampler = GroupedSampler(dataset, generations_per_sample)
-    else:
-        sampler = dist.get_sampler(dataset, drop_last=False, shuffle=False)
+    #if icl_task_type == 'code_evaluation':
+    #    sampler = GroupedSampler(dataset, generations_per_sample)
+    #else:
+    sampler = dist.get_sampler(dataset, drop_last=False, shuffle=False)
 
     split_batch = None
     if isinstance(
